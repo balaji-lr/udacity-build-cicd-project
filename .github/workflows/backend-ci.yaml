@@ -26,7 +26,7 @@ jobs:
         run: pip install pipenv
 
       - name: Install dependencies
-        run: pipenv install
+        run: pipenv install --dev
         working-directory: ./starter/backend
 
       - name: Run Linter
@@ -47,7 +47,7 @@ jobs:
         run: pip install pipenv
 
       - name: Install dependencies
-        run: pipenv install
+        run: pipenv install --dev
         working-directory: ./starter/backend
 
       - name: Run Test
@@ -70,7 +70,7 @@ jobs:
 
       - name: Install dependenciesand Run
         run: |
-          pipenv install
+          pipenv install --dev
           pipenv run serve
         working-directory: ./starter/backend          
 
