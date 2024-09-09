@@ -69,7 +69,7 @@ jobs:
       - name: Install dependenciesand Run
         run: |
           pipenv install --dev
-          pipenv run serve
+          pipenv run serve &
         working-directory: ./starter/backend          
 
       - name: Build Docker image
