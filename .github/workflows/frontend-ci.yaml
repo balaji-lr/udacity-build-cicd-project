@@ -36,7 +36,7 @@ jobs:
 
       - name: Run Linter
         run: npm run lint
-        working-directory: ./starter/frontend
+        working-directory: ./starter/frontend/src
 
   TEST-JOB:
     runs-on: ubuntu-latest
@@ -63,7 +63,7 @@ jobs:
 
       - name: Run Test
         run: npm run test
-        working-directory: ./starter/frontend
+        working-directory: ./starter/frontend/src
 
   BUILD-JOB:
     needs: [LINT-JOB, TEST-JOB]
