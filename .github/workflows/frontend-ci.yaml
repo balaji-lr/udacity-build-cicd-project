@@ -3,12 +3,12 @@ name: frontend-ci
 
 # Triggers for the workflow
 on:
-  workflow_dispatch:
-  
   pull_request:
     branches:
       - main
 
+  workflow_dispatch:
+  
 # Jobs defined in the workflow
 jobs:
   LINT-JOB:
