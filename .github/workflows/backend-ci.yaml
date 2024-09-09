@@ -1,0 +1,62 @@
+# Workflow name
+name: backend-ci
+
+# Triggers for the workflow
+on:
+  workflow_dispatch:
+  
+  push:
+    branches:
+      - main
+
+# Jobs defined in the workflow
+jobs:
+  LINT-JOB:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: pipenv install
+
+      - name: Run Linter
+        run: pipenv run lint
+
+  TEST-JOB:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: pipenv install
+
+      - name: Run Test
+        run: pipenv run test
+
+  BUILD-JOB:
+    needs: [LINT-JOB, TEST-JOB]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: pipenv install
+
+      - name: Build Docker image
+        run: |
+          docker build --tag mp-backend:latest .
+          docker run -p 5000:5000 --name mp-backend -d mp-backend
+        working-directory: ./starter/backend
+
+      - name: Check Docker
+        run:  |
+          curl http://localhost:5000/movies
+          docker logs -f mp-backend
+        working-directory: ./starter/backend
+        
+      - name: Stop Application
+        run: docker stop
+        working-directory: ./starter/backend
