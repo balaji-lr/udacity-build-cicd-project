@@ -62,8 +62,8 @@ jobs:
         working-directory: ./starter/frontend
 
       - name: Run Test
-        run: CI=true npm test
-        working-directory: ./starter/frontend
+        run: npm run test
+        working-directory: ./starter/frontend/src/components/_tests_
 
   BUILD-JOB:
     needs: [LINT-JOB, TEST-JOB]
