@@ -25,12 +25,11 @@ jobs:
       - name: Install pipenv
         run: pip install pipenv
 
-      - name: Install dependencies
-        run: pipenv install --dev
+      - name: Install dependencies Run
+        run: |
+          pipenv install --dev
+          pipenv run lint
         working-directory: ./starter/backend
-
-      - name: Run Linter
-        run: pipenv run lint
 
   TEST-JOB:
     runs-on: ubuntu-latest
@@ -46,12 +45,11 @@ jobs:
       - name: Install pipenv
         run: pip install pipenv
 
-      - name: Install dependencies
-        run: pipenv install --dev
+      - name: Install dependencies Run
+        run: |
+          pipenv install --dev
+          pipenv run test
         working-directory: ./starter/backend
-
-      - name: Run Test
-        run: pipenv run test
 
   BUILD-JOB:
     needs: [LINT-JOB, TEST-JOB]
