@@ -1,0 +1,112 @@
+# Workflow name
+name: frontend-ci
+
+# Triggers for the workflow
+on:
+  # Manual trigger using the workflow_dispatch event
+  workflow_dispatch:
+
+  # Automatic trigger on pull request events targeting the main branch
+  pull_request:
+    branches:
+      - main
+
+# Jobs defined in the workflow
+jobs:
+  LINT-JOB:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js 
+        uses: actions/setup-node@v3
+        with:
+          node-version: latest
+      
+      - name: Use correct NodeJS version
+        run: nvm use
+        working-directory: ./starter/frontend
+
+      - name: Cache npm modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./starter/frontend
+
+      - name: Run Linter
+        run: npm run lint
+        working-directory: ./starter/frontend
+
+  TEST-JOB:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js 
+        uses: actions/setup-node@v3
+        with:
+          node-version: latest
+
+      - name: Use correct NodeJS version
+        run: nvm use
+        working-directory: ./starter/frontend
+
+      - name: Cache npm modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./starter/frontend
+
+      - name: Run Test
+        run: npm run test
+        working-directory: ./starter/frontend
+
+  BUILD-JOB:
+    needs: [LINT-JOB, TEST-JOB]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js 
+        uses: actions/setup-node@v3
+        with:
+          node-version: latest
+
+      - name: Use correct NodeJS version
+        run: nvm use
+        working-directory: ./starter/frontend
+
+      - name: Cache npm modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./starter/frontend
+        
+      - name: Build Docker image
+      run: |
+        docker build --build-arg REACT_APP_MOVIE_API_URL=http://localhost:5000 --tag mp-frontend:latest .
+
+    - name: Run Docker container
+      run: |
+        docker run --name mp-frontend -p 3000:3000 -d mp-frontend

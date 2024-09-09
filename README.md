@@ -9,7 +9,7 @@ The team's project is comprised of 2 application.
 2. A backend API written in Python using the Flask framework.
 
 In the `starter` folder, you'll find 2 folders, one named `frontend` and one named `backend`, where each application's source code is maintained. Your job is to use the team's [existing documentation](./starter/frontend/frontend-development-notes) and create CI/CD pipelines to meet the teams' needs.
-
+export LD_LIBRARY_PATH=/opt/glibc-2.28/lib:$LD_LIBRARY_PATH
 ## Deliverables
 
 ### Frontend
