@@ -91,5 +91,9 @@ jobs:
         working-directory: ./starter/backend
         
       - name: Stop Application
-        run: docker stop
+        run: |
+          if [ "$(docker ps -q -f name=mp-backend)" ]; then
+            docker stop mp-backend
+            docker rm mp-backend
+          fi
         working-directory: ./starter/backend
