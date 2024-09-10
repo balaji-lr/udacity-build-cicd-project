@@ -70,7 +70,13 @@ jobs:
         run: |
           pipenv install --dev
           pipenv run serve &
-        working-directory: ./starter/backend          
+        working-directory: ./starter/backend      
+
+      - name: Kill existing process using port 5000
+        run: |
+          if lsof -i :5000; then
+            sudo kill -9 $(lsof -t -i :5000)
+          fi    
 
       - name: Build Docker image
         run: |
