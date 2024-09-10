@@ -87,7 +87,7 @@ jobs:
       - name: Check Docker
         run:  |
           curl http://localhost:5000/movies
-          docker logs -f mp-backend
+          docker logs -f mp-backend &
         working-directory: ./starter/backend
         
       - name: Stop Application
