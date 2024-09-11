@@ -9,6 +9,9 @@ on:
     branches:
       - main
 
+env:
+  PYTHON_VERSION: '3.8'
+
 # Jobs defined in the workflow
 jobs:
   LINT-JOB:
@@ -20,7 +23,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
-          python-version: '3.8' 
+          python-version: {{env.PYTHON_VERSION}}
 
       - name: Install pipenv
         run: pip install pipenv
@@ -40,7 +43,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
-          python-version: '3.8' 
+          python-version: {{env.PYTHON_VERSION}}
 
       - name: Install pipenv
         run: pip install pipenv
