@@ -40,9 +40,11 @@ jobs:
         if: steps.npm-cache.outputs.cache-hit == 'true'
         run: echo "Cache hit! Dependencies were restored from the cache."
 
+      # Install dependencies only if cache is NOT hit
       - name: Install dependencies
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        working-directory: starter/frontend
         run: npm ci
-        working-directory: ./starter/frontend
 
       - name: Run Linter
         run: npm run lint -- --fix
@@ -75,9 +77,11 @@ jobs:
         if: steps.npm-cache.outputs.cache-hit == 'true'
         run: echo "Cache hit! Dependencies were restored from the cache."
 
+      # Install dependencies only if cache is NOT hit
       - name: Install dependencies
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        working-directory: starter/frontend
         run: npm ci
-        working-directory: ./starter/frontend
 
       - name: Run Test
         run: npm run test
@@ -111,9 +115,11 @@ jobs:
         if: steps.npm-cache.outputs.cache-hit == 'true'
         run: echo "Cache hit! Dependencies were restored from the cache."
 
+      # Install dependencies only if cache is NOT hit
       - name: Install dependencies
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        working-directory: starter/frontend
         run: npm ci
-        working-directory: ./starter/frontend
 
       - name: Run Test
         run: npm run test
