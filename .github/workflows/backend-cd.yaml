@@ -1,5 +1,5 @@
 # Workflow name
-name: backend-cd
+name: Backend Continuous Deployment
 
 # Triggers for the workflow
 on:
