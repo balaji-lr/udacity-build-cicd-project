@@ -90,6 +90,31 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+        - name: Set up Node.js 
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{env.NODE_VERSION}}
+          cache: 'npm'
+          cache-dependency-path: "starter/frontend/package-lock.json"
+
+      # Cache npm dependencies
+      - name: Cache node_modules
+        id: npm-cache 
+        uses: actions/cache@v3
+        with:
+          path: starter/frontend/
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('starter/frontend/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node_modules-
+    
+       # Print message if cache is hit
+      - name: Cache hit message
+        if: steps.npm-cache.outputs.cache-hit == 'true'
+        run: echo "Cache hit! Dependencies were restored from the cache."
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./starter/frontend
+               
       - name: Run Test
         run: npm run test
         working-directory: ./starter/frontend
