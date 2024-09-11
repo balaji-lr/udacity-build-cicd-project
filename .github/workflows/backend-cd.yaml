@@ -82,14 +82,12 @@ jobs:
       run: aws eks update-kubeconfig --name cluster --region us-east-1
 
     - name: Set image tag and apply to cluster
-      working-directory: starter/backend/k8s
       run: |
         cd starter/backend/k8s
         kustomize edit set image backend=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/backend:${GITHUB_SHA} 
         kustomize build | kubectl apply -f -
         
-    - name: Display application URLs   
-      working-directory: starter/backend/k8s    
+    - name: Display application URLs 
       run: |
         cd starter/backend/k8s 
         kubectl get svc -A
