@@ -84,7 +84,7 @@ jobs:
     - name: Set image tag and apply to cluster
       working-directory: starter/backend/k8s
       run: |
-        kustomize edit set image backend=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/backend:${GITHUB_SHA}
+        kustomize edit set image backend=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/backend:${GITHUB_SHA} --validate=false
         kustomize build | kubectl apply -f -
         
     - name: Display application URLs   
