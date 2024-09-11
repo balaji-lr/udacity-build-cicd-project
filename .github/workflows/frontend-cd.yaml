@@ -1,0 +1,115 @@
+# Workflow name
+name: frontend-cd
+
+# Triggers for the workflow
+on:
+  workflow_dispatch:
+  
+  pull_request:
+    branches:
+      - main
+
+# Jobs defined in the workflow
+jobs:
+  LINT-JOB:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js 
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      
+      - name: Cache npm modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./starter/frontend
+
+      - name: Run Linter
+        run: npm run lint -- --fix
+        working-directory: ./starter/frontend
+
+  TEST-JOB:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js 
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Cache npm modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./starter/frontend
+
+      - name: Run Test
+        run: npm run test
+        working-directory: ./starter/frontend
+
+  BUILD-JOB:
+    needs: [LINT-JOB, TEST-JOB]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: us-east-1
+        aws-access-key-id:  ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+      
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Configure kubectl
+        run: aws eks update-kubeconfig --name cluster --region us-east-1
+
+      - name: Display application URLs
+        id: get_backend_url
+        working-directory: starter/frontend/k8s
+        run: |
+          kubectl get svc -A
+          BE_SERVICE_URL=$(kubectl get svc backend -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+          echo "BE_SERVICE_URL=${BE_SERVICE_URL}"
+          echo "::set-output name=be_service_url::${BE_SERVICE_URL}"
+
+      - name: Build, tag, and push image to Amazon ECR
+        working-directory: starter/frontend
+        run: |
+          echo "Using BE_SERVICE_URL=${{ steps.get_backend_url.outputs.be_service_url }}"
+          docker build --build-arg=REACT_APP_MOVIE_API_URL=http://${{ steps.get_backend_url.outputs.be_service_url }} --tag=frontend:${GITHUB_SHA} .
+          docker tag frontend:${GITHUB_SHA} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/frontend:${GITHUB_SHA}
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/frontend:${GITHUB_SHA}
+
+      - name: Set image tag and apply to cluster
+        working-directory: starter/frontend/k8s
+        run: |
+          kustomize edit set image frontend=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/frontend:${GITHUB_SHA}
+          kustomize build | kubectl apply -f -
+        
+      - name: Display application URLs
+        working-directory: starter/frontend/k8s
+        run: kubectl get svc -A
